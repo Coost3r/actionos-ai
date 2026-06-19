@@ -1,4 +1,5 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import WaveSurfer from "wavesurfer.js";
 import "./VoiceRecorder.css";
 
 function VoiceRecorder() {
@@ -10,6 +11,9 @@ function VoiceRecorder() {
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
   const timerRef = useRef(null);
+
+  const waveformRef = useRef(null);
+  const wavesurferRef = useRef(null);
 
   const startRecording = async () => {
     try {
@@ -53,16 +57,22 @@ function VoiceRecorder() {
             }
           );
 
+          console.log("Response status:", response.status);
+          console.log("Response OK:", response.ok);
+
           const data = await response.json();
+
+          console.log("Response data:", data);
 
           setUploadStatus(
             `✅ Uploaded: ${data.filename}`
           );
-
-          console.log("Upload successful:", data);
         } catch (error) {
-          console.error(error);
-          setUploadStatus("❌ Upload failed");
+          console.error("Upload error:", error);
+
+          setUploadStatus(
+            `❌ Upload failed: ${error.message}`
+          );
         }
       };
 
@@ -75,6 +85,7 @@ function VoiceRecorder() {
       timerRef.current = setInterval(() => {
         setSeconds((prev) => prev + 1);
       }, 1000);
+
     } catch (error) {
       console.error(error);
       alert("Microphone access denied.");
@@ -82,12 +93,36 @@ function VoiceRecorder() {
   };
 
   const stopRecording = () => {
-    mediaRecorderRef.current.stop();
+    mediaRecorderRef.current?.stop();
 
     clearInterval(timerRef.current);
 
     setRecording(false);
   };
+
+  useEffect(() => {
+    if (!audioURL || !waveformRef.current) return;
+
+    if (wavesurferRef.current) {
+      wavesurferRef.current.destroy();
+    }
+
+    wavesurferRef.current = WaveSurfer.create({
+      container: waveformRef.current,
+      waveColor: "#7c3aed",
+      progressColor: "#22c55e",
+      cursorColor: "#ffffff",
+      height: 100,
+    });
+
+    wavesurferRef.current.load(audioURL);
+
+    return () => {
+      if (wavesurferRef.current) {
+        wavesurferRef.current.destroy();
+      }
+    };
+  }, [audioURL]);
 
   return (
     <div className="container">
@@ -147,11 +182,26 @@ function VoiceRecorder() {
         <br />
 
         {audioURL && (
-          <audio
-            controls
-            src={audioURL}
-            style={{ width: "100%" }}
-          />
+          <>
+            <div
+              ref={waveformRef}
+              style={{
+                width: "100%",
+                marginTop: "20px",
+              }}
+            />
+
+            <br />
+
+            <button
+              className="record-btn start"
+              onClick={() =>
+                wavesurferRef.current?.playPause()
+              }
+            >
+              ▶ Play / Pause
+            </button>
+          </>
         )}
       </div>
     </div>
