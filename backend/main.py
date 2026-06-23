@@ -1,6 +1,7 @@
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from supabase_client import supabase
+from faster_whisper import WhisperModel
 import shutil
 import os
 import uuid
@@ -19,7 +20,13 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_DIR = os.path.join(BASE_DIR, "uploads")
 
 os.makedirs(UPLOAD_DIR, exist_ok=True)
-
+print("Loading Whisper model...")
+whisper_model = WhisperModel(
+    "base",
+    device="cpu",
+    compute_type="int8"
+)
+print("Whisper model loaded!")
 
 @app.get("/")
 def root():
@@ -29,20 +36,16 @@ def root():
 @app.post("/upload-audio")
 async def upload_audio(file: UploadFile = File(...)):
 
-    # Generate unique filename
     unique_name = f"{uuid.uuid4()}_{file.filename}"
 
-    # Local storage path
     file_path = os.path.join(
         UPLOAD_DIR,
         unique_name
     )
 
-    # Save locally
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
-    # Upload to Supabase
     with open(file_path, "rb") as audio_file:
         supabase.storage.from_("audio-files").upload(
             path=unique_name,
@@ -52,8 +55,19 @@ async def upload_audio(file: UploadFile = File(...)):
             }
         )
 
+    # Transcribe
+    segments, info = whisper_model.transcribe(
+        file_path
+    )
+
+    transcript = ""
+
+    for segment in segments:
+        transcript += segment.text + " "
+
     return {
         "success": True,
         "filename": unique_name,
-        "local_path": file_path
+        "local_path": file_path,
+        "transcript": transcript.strip()
     }

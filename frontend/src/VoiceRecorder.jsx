@@ -7,6 +7,7 @@ function VoiceRecorder() {
   const [audioURL, setAudioURL] = useState(null);
   const [seconds, setSeconds] = useState(0);
   const [uploadStatus, setUploadStatus] = useState("");
+  const [transcript, setTranscript] = useState("");
 
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
@@ -67,6 +68,11 @@ function VoiceRecorder() {
           setUploadStatus(
             `✅ Uploaded: ${data.filename}`
           );
+
+          if (data.transcript) {
+            setTranscript(data.transcript);
+          }
+
         } catch (error) {
           console.error("Upload error:", error);
 
@@ -81,6 +87,7 @@ function VoiceRecorder() {
       setSeconds(0);
       setRecording(true);
       setUploadStatus("");
+      setTranscript("");
 
       timerRef.current = setInterval(() => {
         setSeconds((prev) => prev + 1);
@@ -162,6 +169,22 @@ function VoiceRecorder() {
         </p>
 
         <p>{uploadStatus}</p>
+
+        {transcript && (
+          <div
+            style={{
+              marginTop: "20px",
+              padding: "15px",
+              border: "1px solid #444",
+              borderRadius: "8px",
+              textAlign: "left",
+              width: "100%",
+            }}
+          >
+            <h3>Transcript</h3>
+            <p>{transcript}</p>
+          </div>
+        )}
 
         <div className="upload">
           <input
