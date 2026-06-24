@@ -3,7 +3,6 @@ import json
 from openai import OpenAI
 
 from prompts.extraction_prompt import SYSTEM_PROMPT
-from test_data.sample_transcripts import SAMPLES
 from schemas.extraction import ExtractionResult
 
 client = OpenAI(
@@ -11,8 +10,7 @@ client = OpenAI(
     api_key="ollama"
 )
 
-for i, transcript in enumerate(SAMPLES):
-    print(f"\n===== TEST {i+1} =====")
+def extract_structured_data(transcript: str):
 
     response = client.chat.completions.create(
         model="qwen3:8b",
@@ -27,11 +25,9 @@ for i, transcript in enumerate(SAMPLES):
 
     try:
         data = json.loads(content)
+    except Exception:
+        raise ValueError("Model returned invalid JSON")
 
-        validated = ExtractionResult.model_validate(data)
+    validated = ExtractionResult.model_validate(data)
 
-        print("✅ VALID")
-
-    except Exception as e:
-        print("❌ INVALID")
-        print(e)
+    return validated.model_dump()

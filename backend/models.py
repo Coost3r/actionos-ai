@@ -1,11 +1,11 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 
 class Task(BaseModel):
     title: str
-    owner: str
-    due_date: str
-    priority: str
+    owner: Optional[str] = None
+    due_date: Optional[str] = None
+    priority: str = "medium"
     confidence: float
 
 class Reminder(BaseModel):
@@ -24,3 +24,6 @@ class ExtractionResult(BaseModel):
     summary: List[str]
     decisions: List[str]
     risks: List[str]
+
+class TranscriptRequest(BaseModel):
+    transcript: str

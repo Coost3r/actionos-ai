@@ -1,7 +1,9 @@
+from services.extraction_service import extract_structured_data
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from supabase_client import supabase
 from faster_whisper import WhisperModel
+from pydantic import BaseModel
 import shutil
 import os
 import uuid
@@ -65,9 +67,53 @@ async def upload_audio(file: UploadFile = File(...)):
     for segment in segments:
         transcript += segment.text + " "
 
+    transcript = transcript.strip()
+
+    if not transcript:
+        structured_data = {
+            "summary": [],
+            "tasks": [],
+            "reminders": [],
+            "action_plans": [],
+            "decisions": [],
+            "risks": []
+        }
+    else:
+        structured_data = extract_structured_data(
+            transcript
+        )
+
+    print("\nTRANSCRIPT:")
+    print(transcript)
+
+    print("\nEXTRACTION:")
+    print(structured_data)
+
     return {
         "success": True,
         "filename": unique_name,
         "local_path": file_path,
-        "transcript": transcript.strip()
+        "transcript": transcript,
+        "extraction": structured_data
     }
+
+class ExtractRequest(BaseModel):
+    transcript: str
+
+
+@app.post("/extract")
+async def extract_text(request: ExtractRequest):
+
+    if not request.transcript.strip():
+        return {
+            "summary": [],
+            "tasks": [],
+            "reminders": [],
+            "action_plans": [],
+            "decisions": [],
+            "risks": []
+        }
+
+    return extract_structured_data(
+        request.transcript
+    )
