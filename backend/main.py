@@ -57,17 +57,17 @@ async def upload_audio(file: UploadFile = File(...)):
             }
         )
 
-    # Transcribe
-    segments, info = whisper_model.transcribe(
-        file_path
+    audio_url = (
+        supabase.storage
+        .from_("audio-files")
+        .get_public_url(unique_name)
     )
+    # Transcribe
+    segments, info = whisper_model.transcribe(file_path)
 
-    transcript = ""
+    
 
-    for segment in segments:
-        transcript += segment.text + " "
-
-    transcript = transcript.strip()
+    transcript = " ".join(segment.text for segment in segments).strip()
 
     if not transcript:
         structured_data = {
@@ -79,9 +79,23 @@ async def upload_audio(file: UploadFile = File(...)):
             "risks": []
         }
     else:
-        structured_data = extract_structured_data(
-            transcript
+        structured_data = extract_structured_data(transcript)
+
+    session_id = str(uuid.uuid4())
+
+    supabase.table("sessions").insert({
+        "session_id": session_id,
+        "audio_url": audio_url,
+        "transcript": transcript,
+        "tasks": structured_data.get("tasks", []),
+        "reminders": structured_data.get("reminders", []),
+        "action_plan": structured_data.get("action_plans", []),
+        "summary": (
+            structured_data.get("summary", "")
+            if isinstance(structured_data.get("summary"), str)
+            else " ".join(structured_data.get("summary", []))
         )
+    }).execute()
 
     print("\nTRANSCRIPT:")
     print(transcript)

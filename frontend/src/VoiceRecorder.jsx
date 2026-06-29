@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import WaveSurfer from "wavesurfer.js";
 import "./VoiceRecorder.css";
+import ResultsPage from "./components/Results/ResultsPage";
 
 function VoiceRecorder() {
   const [recording, setRecording] = useState(false);
@@ -8,6 +9,7 @@ function VoiceRecorder() {
   const [seconds, setSeconds] = useState(0);
   const [uploadStatus, setUploadStatus] = useState("");
   const [transcript, setTranscript] = useState("");
+  const [extraction, setExtraction] = useState(null);
 
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
@@ -72,6 +74,9 @@ function VoiceRecorder() {
           if (data.transcript) {
             setTranscript(data.transcript);
           }
+          if (data.extraction) {
+             setExtraction(data.extraction);
+          }
 
         } catch (error) {
           console.error("Upload error:", error);
@@ -88,6 +93,7 @@ function VoiceRecorder() {
       setRecording(true);
       setUploadStatus("");
       setTranscript("");
+      setExtraction(null);
 
       timerRef.current = setInterval(() => {
         setSeconds((prev) => prev + 1);
@@ -137,7 +143,7 @@ function VoiceRecorder() {
         <h1 className="title">ActionOS</h1>
 
         <p className="subtitle">
-          Voice Powered Productivity
+          VOICE POWERED PRODUCTIVITY
         </p>
 
         <div className="timer">
@@ -151,7 +157,7 @@ function VoiceRecorder() {
             className="record-btn start"
             onClick={startRecording}
           >
-            🎤 Start Recording
+            Record
           </button>
         ) : (
           <button
@@ -181,11 +187,13 @@ function VoiceRecorder() {
               width: "100%",
             }}
           >
-            <h3>Transcript</h3>
+            <h3 className="section-title">Transcript</h3>
             <p>{transcript}</p>
           </div>
         )}
-
+        {extraction && (
+  <ResultsPage data={extraction} />
+)}
         <div className="upload">
           <input
             type="file"

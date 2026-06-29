@@ -1,0 +1,7 @@
+.results-page {
+    max-width: 1000px;
+    margin: auto;
+    padding: 30px;
+    background: #f5f7fb;
+    min-height: 100vh;
+}

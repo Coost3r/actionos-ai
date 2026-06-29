@@ -1,0 +1,43 @@
+.result-section {
+    margin-bottom: 40px;
+}
+
+.result-section h2.section-title {
+    font-family: "Orbitron", sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+
+    margin-bottom: 15px;
+    color: #ffffff;
+}
+
+.result-section ul {
+    padding-left: 20px;
+}
+
+.result-section li {
+    margin-bottom: 10px;
+}
+
+.priority {
+    font-weight: bold;
+    padding: 4px 10px;
+    border-radius: 8px;
+}
+
+.priority.high {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.priority.medium {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.priority.low {
+    background: #dcfce7;
+    color: #15803d;
+}
