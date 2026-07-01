@@ -2,27 +2,23 @@ import "./Section.css";
 
 export default function SummarySection({ summary }) {
 
-    if (!summary || summary.length === 0)
-        return null;
+    if (!summary) return null;
+
+    const summaryItems = Array.isArray(summary)
+        ? summary
+        : [summary];
 
     return (
-
         <section className="result-section">
 
-            <h2>Summary</h2>
+            <h2 className="section-title">Summary</h2>
 
             <ul>
-
-                {summary.map((item,index)=>(
-
+                {summaryItems.map((item, index) => (
                     <li key={index}>{item}</li>
-
                 ))}
-
             </ul>
 
         </section>
-
     );
-
 }

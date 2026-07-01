@@ -66,3 +66,81 @@ body {
 audio {
   margin-top: 15px;
 }
+
+
+.navbar{
+    position:sticky;
+    top:0;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    padding:18px 40px;
+
+    background:#0B1120;
+
+    border-bottom:1px solid #25314A;
+
+    z-index:100;
+}
+
+.nav-logo{
+
+    font-family:var(--display);
+
+    color:white;
+
+    font-size:1.8rem;
+
+    letter-spacing:3px;
+}
+
+.nav-links{
+
+    display:flex;
+
+    gap:18px;
+}
+
+.nav-links button{
+
+    background:none;
+
+    border:none;
+
+    color:#C7D5E5;
+
+    font-family:var(--display);
+
+    cursor:pointer;
+
+    font-size:.95rem;
+
+    transition:.25s;
+}
+
+.nav-links button:hover{
+
+    color:#4F8CFF;
+
+    transform:translateY(-2px);
+}
+.post-upload-actions {
+    margin-top: 25px;
+    text-align: center;
+}
+
+.success-message {
+    color: #22c55e;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 18px;
+}
+
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
